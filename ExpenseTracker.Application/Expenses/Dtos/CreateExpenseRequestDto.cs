@@ -2,7 +2,6 @@ namespace ExpenseTracker.Application.Expenses.Dtos;
 
 public class CreateExpenseRequestDto
 {
-    public Guid UserId { get; set; }
     public decimal Amount { get; set; }
     public string Currency { get; set; } = "CAD";
     public string Category { get; set; } = string.Empty;

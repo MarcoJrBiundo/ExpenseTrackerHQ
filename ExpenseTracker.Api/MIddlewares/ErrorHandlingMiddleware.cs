@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
 
+namespace ExpenseTracker.Api.Middlewares;
+
 public class ErrorHandlingMiddleware
 {
     private readonly RequestDelegate _next;

@@ -34,7 +34,7 @@ namespace ExpenseTracker.Api.Controllers
             return Ok(result.Data);
         }
 
-        [HttpGet("{expenseId:guid}")]
+        [HttpGet("{expenseId:guid}", Name = "GetExpenseById")]
         public async Task<IActionResult> GetExpenseByIdAsync(
             [FromRoute] Guid userId, 
             [FromRoute] Guid expenseId, 
@@ -67,7 +67,11 @@ namespace ExpenseTracker.Api.Controllers
             if (!result.Success)
                 return BadRequest(result.ErrorMessage);
 
-            return Ok(result.Data);
+            return CreatedAtAction(
+                nameof(GetExpenseByIdAsync),
+                new { userId, expenseId = result.Data!.Id },
+                result.Data);
+    
         }
 
         [HttpPut("{expenseId:guid}")]

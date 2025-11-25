@@ -3,10 +3,13 @@
 using ExpenseTracker.Infrastructure.Extensions;
 using ExpenseTracker.Application.Extensions;
 using Serilog;
+using FluentValidation.AspNetCore;
+using ExpenseTracker.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(); 
+builder.Services.AddFluentValidationAutoValidation();     
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration );
