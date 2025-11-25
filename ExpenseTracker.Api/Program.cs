@@ -18,7 +18,7 @@ builder.Services.AddApplication();
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration
-      .ReadFrom.Configuration(context.Configuration) 
+      .ReadFrom.Configuration(context.Configuration)  
 );
 
 
