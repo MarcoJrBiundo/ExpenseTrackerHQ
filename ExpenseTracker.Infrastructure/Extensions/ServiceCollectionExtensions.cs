@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using ExpenseTracker.Domain.Repositories;
 using ExpenseTracker.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using ExpenseTracker.Domain.Entities;
 using ExpenseTracker.Infrastructure.Persistence;
 
 namespace ExpenseTracker.Infrastructure.Extensions;

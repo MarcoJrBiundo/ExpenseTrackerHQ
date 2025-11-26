@@ -10,9 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ExpenseDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("ExpenseTrackerDb")));
 
 builder.Services.AddControllers(); 
 builder.Services.AddFluentValidationAutoValidation();     
@@ -28,6 +25,11 @@ builder.Host.UseSerilog((context, configuration) =>
 
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
+    dbContext.Database.Migrate(); // creates ExpenseTrackerDb and tables if they don't exist
+}
 
 app.UseSerilogRequestLogging();
 

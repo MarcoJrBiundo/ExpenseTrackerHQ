@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: expense-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrongPassword1!
+    ports:
+      - "1433:1433"
+    volumes:
+      - expense-sqldata:/var/opt/mssql
+    restart: unless-stopped
+
+  api:
+    container_name: expense-api
+    build:
+      context: .
+      dockerfile: ExpenseTracker.Api/Dockerfile
+      # ^ adjust if your Dockerfile lives somewhere else,
+      # e.g. ExpenseTracker.Api/ExpenseTracker.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__ExpenseTrackerDb=Server=expense-sql,1433;Database=ExpenseTrackerDb;User Id=sa;Password=YourStrongPassword1!;TrustServerCertificate=True;
+    ports:
+      - "4200:8080"
+    depends_on:
+      - sqlserver
+    restart: unless-stopped
+
+volumes:
+  expense-sqldata:

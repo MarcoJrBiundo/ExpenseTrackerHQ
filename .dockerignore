@@ -1,0 +1,14 @@
+bin/
+obj/
+**/bin/
+**/obj/
+.vscode/
+.git/
+.gitignore
+.idea/
+*.user
+*.suo
+*.swp
+*.tmp
+Dockerfile
+**/Dockerfile*
