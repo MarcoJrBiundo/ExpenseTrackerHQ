@@ -27,8 +27,4 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
-
-
-
-
 }       
