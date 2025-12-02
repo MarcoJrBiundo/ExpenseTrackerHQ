@@ -1,4 +1,4 @@
-##Docker Commands
+## Docker Commands
 
 This file documents the key Docker commands used (or typically needed) to:
 Container name used below: `entity-sql`
