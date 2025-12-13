@@ -16,16 +16,21 @@ Before running anything here, make sure:
 
 - Docker Desktop is running.
 - Kubernetes is enabled in Docker Desktop.
-- You are in the **ExpenseTracker.Api** directory when running Helm commands:
+- You are in the **ExpenseTrackerHQ (repo root)** directory when running Helm commands:
 
 ```bash
-cd /Users/marcobiundo/Documents/ExpenseTracker.Api
+cd /Users/marcobiundo/Documents/ExpenseTracker/ExpenseTrackerHQ
 ```
 
 Namespaces used:
 - **expense-dev** → app namespace (API, Service, ConfigMap, Secret, Ingress)
 - **ingress-nginx** → NGINX Ingress Controller namespace
 
+Repository structure note:
+- Application code lives under `apps/api`
+- Helm charts live under `infra/helm`
+- Terraform lives under `infra/terraform`
+All Helm commands should be run from the repository root.
 
 ---
 
@@ -102,10 +107,10 @@ Use this when you want to:
 - After a tear down
 - Or when starting a new dev session
 
-We assume you are in:
+We assume you are in the repo root:
 
 ```bash
-cd /Users/marcobiundo/Documents/ExpenseTracker.Api
+cd /Users/marcobiundo/Documents/ExpenseTracker/ExpenseTrackerHQ
 ```
 
 And that namespaces either exist or will be created as needed.
@@ -156,10 +161,10 @@ ingress-nginx-controller   1/1   Running
 
 ### Step 3 — Deploy the Expense API via Helm
 
-From `ExpenseTracker.Api` root:
+From `ExpenseTrackerHQ` root:
 
 ```bash
-helm upgrade --install expense-api ./charts/expense-api -n expense-dev
+helm upgrade --install expense-api ./infra/helm/expense-api -n expense-dev
 ```
 
 This will:
@@ -249,8 +254,8 @@ kubectl get pods -n expense-dev
 3. If pods are not running, redeploy with Helm:
 
 ```bash
-cd /Users/marcobiundo/Documents/ExpenseTracker.Api
-helm upgrade --install expense-api ./charts/expense-api -n expense-dev
+cd /Users/marcobiundo/Documents/ExpenseTracker/ExpenseTrackerHQ
+helm upgrade --install expense-api ./infra/helm/expense-api -n expense-dev
 ```
 
 4. Port-forward ingress controller:
