@@ -16,7 +16,7 @@ services:
   api:
     container_name: expense-api
     build:
-      context: .
+      context: ..
       dockerfile: ExpenseTracker.Api/Dockerfile
       # ^ adjust if your Dockerfile lives somewhere else,
       # e.g. ExpenseTracker.Api/ExpenseTracker.Api/Dockerfile
