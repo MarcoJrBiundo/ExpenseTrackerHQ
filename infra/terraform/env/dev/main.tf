@@ -1,3 +1,12 @@
+locals {
+  prefix = "expensetracker-dev"
+
+  tags = {
+    project = "ExpenseTrackerHQ"
+    env     = "dev"
+  }
+}
+
 module "networking" {
   source = "../../modules/networking"
 
@@ -22,10 +31,7 @@ module "acr" {
   location = module.networking.location
   acr_name = "acrexptrackerhqdev01"
   sku      = "Basic"
-  tags = {
-    project = "ExpenseTrackerHQ"
-    env     = "dev"
-  }
+  tags     = local.tags
 }
 
 module "aks" {
@@ -43,11 +49,7 @@ module "aks" {
   user_node_vm_size   = "Standard_B2s_v2"
   user_node_min       = 0
   user_node_max       = 2
-
-  tags = {
-    project = "ExpenseTrackerHQ"
-    env     = "dev"
-  }
+  tags                = local.tags
 }
 
 module "sql" {
@@ -58,11 +60,7 @@ module "sql" {
   admin_login     = var.sql_admin_login
   admin_password  = var.sql_admin_password
   sql_db_name     = "sqldb-expensetracker-dev"
-
-  tags = {
-    project = "ExpenseTrackerHQ"
-    env     = "dev"
-  }
+  tags            = local.tags
 }
 
 module "private_dns_sql" {
@@ -70,11 +68,7 @@ module "private_dns_sql" {
   rg_name  = module.networking.rg_name
   location = module.networking.location
   vnet_id  = module.networking.vnet_id
-
-  tags = {
-    project = "ExpenseTrackerHQ"
-    env     = "dev"
-  }
+  tags     = local.tags
 }
 
 
@@ -86,11 +80,15 @@ module "private_endpoint_sql" {
   private_endpoint_name = "pe-sql-expensetracker-dev"
   sql_server_id         = module.sql.sql_server_id
   private_dns_zone_id   = module.private_dns_sql.private_dns_zone_id
-  tags = {
-    project = "ExpenseTrackerHQ"
-    env     = "dev"
-  }
+  tags                  = local.tags
 }
 
+module "keyvault" {
+  source              = "../../modules/keyvault"
+  name                = "${local.prefix}-kv"
+  location            = module.networking.location
+  resource_group_name = module.networking.rg_name
+  tags                = local.tags
+}
 
 
