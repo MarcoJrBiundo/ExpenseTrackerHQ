@@ -1,0 +1,111 @@
+{
+  "info": {
+    "_postman_id": "d9a3f4b8-1c7e-4a2f-9f6c-9c9b4f6a1e01",
+    "name": "ExpenseTracker API – Auth (AKS)",
+    "description": "Authenticated Postman collection for ExpenseTracker.Api (AKS + Entra External ID).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://expense.local",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "861e58b3-c162-42df-b1e5-4dc72cfe4080",
+      "type": "string"
+    },
+    {
+      "key": "expenseId",
+      "value": "f5ad0ae6-47a6-44c3-a182-7e9002d6adc5",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get All Expenses",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/users/{{userId}}/expenses",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "users", "{{userId}}", "expenses"]
+        }
+      }
+    },
+    {
+      "name": "Get Expense By Id",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/users/{{userId}}/expenses/{{expenseId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "users", "{{userId}}", "expenses", "{{expenseId}}"]
+        }
+      }
+    },
+    {
+      "name": "Create Expense",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 25.50,\n  \"currency\": \"CAD\",\n  \"category\": \"Food\",\n  \"date\": \"2025-01-01T12:00:00Z\",\n  \"description\": \"Lunch at Subway\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/users/{{userId}}/expenses",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "users", "{{userId}}", "expenses"]
+        }
+      }
+    },
+    {
+      "name": "Update Expense",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{expenseId}}\",\n  \"userId\": \"{{userId}}\",\n  \"amount\": 99.99,\n  \"currency\": \"CAD\",\n  \"category\": \"Groceries\",\n  \"date\": \"2025-01-02T12:00:00Z\",\n  \"description\": \"Updated expense\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/users/{{userId}}/expenses/{{expenseId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "users", "{{userId}}", "expenses", "{{expenseId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Expense",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/api/v1/users/{{userId}}/expenses/{{expenseId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "users", "{{userId}}", "expenses", "{{expenseId}}"]
+        }
+      }
+    }
+  ]
+}

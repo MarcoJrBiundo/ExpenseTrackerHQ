@@ -1,4 +1,3 @@
-
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
@@ -7,10 +6,11 @@ using ExpenseTracker.Application.Extensions;
 using Serilog;
 using FluentValidation.AspNetCore;
 using ExpenseTracker.Api.Middlewares;
-using ExpenseTracker.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
 // --- Azure Key Vault configuration (Workload Identity / Managed Identity) ---
 // If KeyVault__Uri is set (env var -> KeyVault:Uri), we add Key Vault as a configuration provider.
 // This allows secrets like `ConnectionStrings--DefaultConnection` to bind to `ConnectionStrings:DefaultConnection`.
@@ -21,31 +21,38 @@ if (!string.IsNullOrWhiteSpace(keyVaultUri))
     builder.Configuration.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
 }
 
-
-builder.Services.AddControllers(); 
-builder.Services.AddFluentValidationAutoValidation();     
+builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddInfrastructure(builder.Configuration );
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddHealthChecks();
 
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["Auth:Authority"];
+        options.Audience = builder.Configuration["Auth:Audience"];
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 builder.Host.UseSerilog((context, configuration) =>
     configuration
-      .ReadFrom.Configuration(context.Configuration)  
+        .ReadFrom.Configuration(context.Configuration)
 );
 
-
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
-    var runMigrations = builder.Configuration.GetValue<bool>("RunMigrations");
-    if (runMigrations)
-    {  
-        dbContext.Database.Migrate();
-    }
-}
 
 app.UseSerilogRequestLogging();
 
@@ -57,6 +64,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapHealthChecks("/health");
 app.MapControllers();

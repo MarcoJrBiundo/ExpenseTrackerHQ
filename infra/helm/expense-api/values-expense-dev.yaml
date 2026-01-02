@@ -9,10 +9,14 @@ workloadIdentity:
 keyVault:
   uri: "https://expensetracker-dev-kv.vault.azure.net/"
 
+auth:
+  authority: "https://expensetrackerhqdev.ciamlogin.com/b19bd0da-f1e2-4781-a072-973d388c6016/v2.0"
+  audience: "66536591-2962-45c4-9be5-1b100381a561"
+
 podLabels:
   azure.workload.identity/use: "true"
 image:
-  tag: "dev-3eea53f"   
+  tag: "430-jwt"   
 migrations:
   enabled: true
   image:

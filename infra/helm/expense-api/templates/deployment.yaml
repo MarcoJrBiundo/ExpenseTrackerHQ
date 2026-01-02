@@ -36,6 +36,12 @@ spec:
             - secretRef:
                 name: expense-api-secrets
 
+          env:
+            - name: Auth__Authority
+              value: {{ .Values.auth.authority | quote }}
+            - name: Auth__Audience
+              value: {{ .Values.auth.audience | quote }}
+
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 

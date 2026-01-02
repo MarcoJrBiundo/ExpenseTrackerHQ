@@ -6,10 +6,12 @@ using ExpenseTracker.Application.Expenses.Dtos;
 using ExpenseTracker.Application.Expenses.Queries.GetExpenseByIdQuery;
 using ExpenseTracker.Application.Expenses.Queries.GetExpensesByUserQuery;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/users/{userId:guid}/expenses")]
     public class ExpenseController : ControllerBase
