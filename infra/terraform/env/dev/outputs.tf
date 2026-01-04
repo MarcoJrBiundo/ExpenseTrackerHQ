@@ -5,3 +5,5 @@ output "sql_server_id" { value = module.sql.sql_server_id }
 output "sql_db_id" { value = module.sql.sql_database_id }
 output "sql_private_endpoint_ip" { value = module.private_endpoint_sql.private_endpoint_private_ip }
 output "private_dns_zone_name" { value = module.private_dns_sql.private_dns_zone_name }
+output "apim_name" { value = module.apim.name }
+output "apim_gateway_url" { value = module.apim.gateway_url }

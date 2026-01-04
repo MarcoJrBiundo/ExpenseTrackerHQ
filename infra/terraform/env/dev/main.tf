@@ -91,4 +91,15 @@ module "keyvault" {
   tags                = local.tags
 }
 
+module "apim" {
+  source              = "../../modules/apim"
+  name                = "apim-${local.prefix}-mb1319"
+  location            = module.networking.location
+  resource_group_name = module.networking.rg_name
+  publisher_email     = "marcojbiundo@gmail.com"
+  publisher_name      = "ExpenseTrackerHQ"
+  sku_name            = "Developer_1"
+  tags                = local.tags
+}
+
 
