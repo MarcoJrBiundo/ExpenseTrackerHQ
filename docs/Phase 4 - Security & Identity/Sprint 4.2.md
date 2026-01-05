@@ -2,7 +2,7 @@
 
 > **Purpose of this document**
 >
-> This is the “holy bible” for how we connected **Azure SQL** to our **AKS pods** **securely** and **privately** in Sprint 4.2.
+> This is the “holy bible” for how I connected **Azure SQL** to our **AKS pods** **securely** and **privately** in Sprint 4.2.
 >
 > It is intentionally **excruciatingly detailed**.
 >
@@ -13,7 +13,7 @@
 > - ✅ Authentication via **AKS Workload Identity (OIDC)**
 > - ✅ Database schema creation via **EF Core migrations runner** executed as a **Helm hook Kubernetes Job**
 >
-> This includes the exact problems we hit (placeholder overrides, DNS checks, container framework mismatch, tag caching) and how we fixed them.
+> This includes the exact problems I hit (placeholder overrides, DNS checks, container framework mismatch, tag caching) and how I fixed them.
 
 ---
 
@@ -42,9 +42,9 @@ By the end of this sprint:
 
 ## Mental Model (Read This First)
 
-### What we are trying to achieve
+### What I are trying to achieve
 
-We want the API pod to connect to Azure SQL, but we want:
+I want the API pod to connect to Azure SQL, but I want:
 
 1) **Network**: traffic flows privately
 - The hostname `sql-<name>.database.windows.net` must resolve to a **private IP** (Private DNS)
@@ -59,7 +59,7 @@ We want the API pod to connect to Azure SQL, but we want:
 4) **Schema**: tables must exist
 - EF migrations are applied via a separate process (Kubernetes Job) before the API runs
 
-### Why we can’t just put the connection string in Helm values
+### Why I can’t just put the connection string in Helm values
 Because Helm values end up in:
 - Git (if committed)
 - CI logs
@@ -106,7 +106,7 @@ Store the SQL credentials in **Key Vault**, and only ever retrieve them **at run
 
 ### Decision: “full connection string” vs “parts”
 
-We chose:
+I chose:
 
 ✅ **Single secret containing the full SQL connection string**.
 
@@ -115,7 +115,7 @@ Why:
 - Fewer moving pieces
 - Easier to rotate (change one secret value)
 
-We can evolve later if we want per-component secrets.
+I can evolve later if I want per-component secrets.
 
 ### Key Vault secret details
 
@@ -213,7 +213,7 @@ The key idea:
 
 ### Rule 1: No DB creds in Helm values
 
-We do **not** store:
+I do **not** store:
 - username
 - password
 - full connection string
@@ -231,7 +231,7 @@ Examples of allowed values:
 
 If the Deployment uses the `default` ServiceAccount, Workload Identity fails.
 
-Fix we applied:
+Fix I applied:
 
 - Ensure deployment sets `serviceAccountName: expense-api`
 
@@ -248,11 +248,11 @@ Without this label, token exchange won’t happen.
 
 ---
 
-## The Problems We Hit (and the exact fixes)
+## The Problems I Hit (and the exact fixes)
 
 ### Problem A — “Server not found / not accessible” (HTTP 500)
 
-We saw:
+I saw:
 
 ```json
 "detail": "A network-related or instance-specific error occurred ... TCP Provider ..."
@@ -285,7 +285,7 @@ This confirmed our Private DNS + Private Endpoint path was correct.
 
 ### Problem B — Placeholder DB connection string overriding Key Vault
 
-We found the pod had:
+I found the pod had:
 
 - `ConnectionStrings__ExpenseTrackerDb=Server=placeholder;Database=ExpenseTrackerDb;...`
 
@@ -300,7 +300,7 @@ The Deployment used `envFrom` → the env var was always present.
 
 1) Remove the hardcoded placeholder from the Helm secret template.
 
-We changed `infra/helm/expense-api/templates/secret.yaml` to:
+I changed `infra/helm/expense-api/templates/secret.yaml` to:
 
 ```yaml
 apiVersion: v1
@@ -316,7 +316,7 @@ stringData:
   {{- end }}
 ```
 
-Meaning: if we don’t set `.Values.secrets`, no secret env vars are injected.
+Meaning: if I don’t set `.Values.secrets`, no secret env vars are injected.
 
 2) Delete the already-created Kubernetes Secret so the stale key is gone:
 
@@ -345,7 +345,7 @@ kubectl exec -n expense-dev deploy/expense-api -c expense-api -- env | grep Conn
 
 Expected: **no output**.
 
-### Proof we were now correctly connected
+### Proof I were now correctly connected
 
 After removing the placeholder override, our error changed to:
 
@@ -361,7 +361,7 @@ It means:
 - ✅ network succeeded
 - ❌ tables don’t exist yet
 
-That is exactly what we expect before running migrations.
+That is exactly what I expect before running migrations.
 
 ---
 
@@ -371,7 +371,7 @@ That is exactly what we expect before running migrations.
 
 Apply EF Core migrations automatically in AKS, safely, and repeatably.
 
-### Pattern we used
+### Pattern I used
 
 ✅ **Dedicated migrations runner container** executed as a **Kubernetes Job** via a **Helm hook**:
 
@@ -527,9 +527,9 @@ dotnet build apps/migrations/ExpenseTracker.Migrations/ExpenseTracker.Migrations
 
 `apps/migrations/ExpenseTracker.Migrations/Dockerfile`
 
-### Why we changed the base image
+### Why I changed the base image
 
-We initially used `mcr.microsoft.com/dotnet/runtime:8.0` and got:
+I initially used `mcr.microsoft.com/dotnet/runtime:8.0` and got:
 
 > `Framework 'Microsoft.AspNetCore.App', version '8.0.0' was not found.`
 
@@ -576,9 +576,9 @@ docker buildx build \
   .
 ```
 
-### Why we stopped using “same tag”
+### Why I stopped using “same tag”
 
-We hit a classic issue:
+I hit a classic issue:
 - same tag reused
 - node cached image
 - `imagePullPolicy: IfNotPresent`
@@ -711,7 +711,7 @@ Expect private IP.
 
 ---
 
-## Summary (What we achieved)
+## Summary (What I achieved)
 
 By the end of Sprint 4.2:
 
