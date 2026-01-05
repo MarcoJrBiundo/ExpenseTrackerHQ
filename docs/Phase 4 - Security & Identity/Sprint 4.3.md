@@ -94,7 +94,7 @@ This tenant exists **solely to issue tokens**.
 
 ## 5. App Registrations Overview
 
-We create **three logical identities**:
+I create **three logical identities**:
 
 | App | Purpose |
 |---|---|
@@ -190,7 +190,7 @@ Even though no frontend exists yet, this models reality.
 
 Postman **cannot** redeem SPA tokens correctly.
 
-So we create a **native/public client**:
+So I create a **native/public client**:
 
 - No client secret
 - Uses Authorization Code + PKCE
@@ -210,7 +210,7 @@ This app is **only for testing**.
 
 ## 10. Optional Token Claims
 
-We enable useful identity claims.
+I enable useful identity claims.
 
 ### Configuration
 
@@ -253,7 +253,7 @@ Example:
 https://<tenant>.ciamlogin.com/<tenant-id>/v2.0/.well-known/openid-configuration
 ```
 
-From this document we get:
+From this document I get:
 - Issuer
 - Signing keys
 - Authorization endpoint
@@ -298,7 +298,7 @@ Order matters.
 
 ## 14. Protecting Endpoints
 
-We apply `[Authorize]`.
+I apply `[Authorize]`.
 
 Example:
 
@@ -328,7 +328,7 @@ This is **intentional**.
 
 ### Phase 6 change
 
-Later we will:
+Later I will:
 - Extract `sub` from JWT
 - Enforce ownership
 - Remove userId from client control
