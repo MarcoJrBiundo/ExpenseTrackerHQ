@@ -59,7 +59,7 @@ Create (or select) the Azure subscription that will own these resources.
 
 ## Step 2 — Manually Create the Terraform Backend (One-Time Bootstrap)
 
-Terraform cannot create its own backend *until a backend exists*. So we bootstrap the backend manually once.
+Terraform cannot create its own backend *until a backend exists*. So I bootstraped the backend manually once.
 
 Create these resources in Azure (Portal or CLI):
 
@@ -233,7 +233,7 @@ output "rg_name"       { value = azurerm_resource_group.network.name }
 output "location"      { value = azurerm_resource_group.network.location }
 ```
 
-**Why we use a module:**
+**Why I use a module:**
 - Encapsulates networking as a reusable unit.
 - Avoids duplication across environments.
 - Makes the environment layer a simple “configuration file” (names/CIDRs).
