@@ -112,7 +112,7 @@ image: mcr.microsoft.com/mssql/server:2022-latest
 ```
 
 - Tells Docker which **image** to run.
-- Here we use the official **SQL Server 2022** Linux image from Microsoft.
+- Here I use the official **SQL Server 2022** Linux image from Microsoft.
 - `:2022-latest` is the tag for that version.
 
 If you changed versions in the future, this is where you’d point to a different SQL Server image or tag.
