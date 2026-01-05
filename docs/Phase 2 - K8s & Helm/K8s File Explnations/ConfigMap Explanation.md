@@ -112,10 +112,10 @@ var runMigrations = configuration.GetValue<bool>("RunMigrations");
 By storing this in a ConfigMap, Kubernetes now decides whether your container should run migrations or not.
 
 In Phase 2:
-- We **disable** migrations because SQL isn’t running inside the cluster yet.
+- I **disable** migrations because SQL isn’t running inside the cluster yet.
 
 Later in AKS:
-- We may enable migrations in CI/CD jobs instead of inside the pod.
+-I may enable migrations in CI/CD jobs instead of inside the pod.
 
 ---
 
