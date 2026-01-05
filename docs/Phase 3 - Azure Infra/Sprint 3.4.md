@@ -24,7 +24,7 @@ This sprint ensures infrastructure readiness and secure networking without yet e
 
 ### 1. Azure SQL Server & Database Provisioning
 
-We begin by defining Terraform resources for the Azure SQL Server and Database.
+I began by defining Terraform resources for the Azure SQL Server and Database.
 
 ```hcl
 resource "azurerm_mssql_server" "main" {
@@ -83,7 +83,7 @@ resource "azurerm_mssql_database" "main" {
 
 ### 2. Private Endpoint Creation
 
-To secure connectivity, we create a Private Endpoint to the SQL Server:
+To secure connectivity, I created a Private Endpoint to the SQL Server:
 
 ```hcl
 resource "azurerm_private_endpoint" "sql" {
@@ -116,7 +116,7 @@ resource "azurerm_private_endpoint" "sql" {
 
 ### 3. Private DNS Zone Setup and Linking
 
-Azure SQL private endpoints require DNS resolution to the private IP address. We set up a Private DNS Zone and link it to our VNet:
+Azure SQL private endpoints require DNS resolution to the private IP address. I set up a Private DNS Zone and link it to our VNet:
 
 ```hcl
 resource "azurerm_private_dns_zone" "sql" {
@@ -148,7 +148,7 @@ resource "azurerm_private_dns_a_record" "sql" {
   - `resource_group_name`: Where the DNS zone is created.
 - `azurerm_private_dns_zone_virtual_network_link`:
   - Links the DNS zone to the VNet so that resources inside can resolve private endpoints.
-  - `registration_enabled` is false since we do not want auto-registration of VMs or other resources.
+  - `registration_enabled` is false since I do not want auto-registration of VMs or other resources.
 - `azurerm_private_dns_a_record`:
   - Creates an A record pointing the SQL Server FQDN to the private IP of the endpoint.
   - `ttl`: Time to live for DNS caching.
@@ -158,7 +158,7 @@ resource "azurerm_private_dns_a_record" "sql" {
 
 ### 4. Validation of AKS → SQL Private Connectivity
 
-Once the infrastructure is deployed, we validate connectivity from the AKS cluster.
+Once the infrastructure is deployed, I validate connectivity from the AKS cluster.
 
 **Step 1:** Connect to the AKS cluster:
 
@@ -201,7 +201,7 @@ If the command returns SQL Server version info, private connectivity is confirme
 
 - This sprint focuses solely on **infrastructure provisioning and network connectivity**.
 - The API does not yet have **secrets management** or **managed identity** integration to securely authenticate to SQL.
-- Actual database usage, schema migrations, and application integration are deferred to **Phase 4**, where we will implement **Azure Key Vault** and **Managed Identity** for secure credential handling.
+- Actual database usage, schema migrations, and application integration are deferred to **Phase 4**, where I will implement **Azure Key Vault** and **Managed Identity** for secure credential handling.
 - This staged approach minimizes risk and isolates infrastructure concerns from application logic.
 
 ---
