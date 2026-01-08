@@ -1,87 +1,107 @@
+## Diagram 1 — Architecture Overview (what exists + main flows)
+
 ```mermaid
-flowchart TB
-  %% ======= USERS / CLIENTS =======
-  U[User - Developer] -->|Browser or Postman| APIM
+flowchart LR
+  U["User / Developer<br/>Browser or Postman"]
+  APIM["Azure API Management<br/>Public Gateway"]
+  AKS["AKS Cluster<br/>ExpenseTracker API"]
+  KV["Azure Key Vault<br/>RBAC"]
+  SQL["Azure SQL Database (PaaS)\nPrivate access only"]
+  ACR["Azure Container Registry"]
+  PE["Private Endpoint (NIC)"]
 
-  %% ======= IDENTITY (AUTH) =======
-  subgraph ENTRA["Microsoft Entra External ID Tenant (CIAM)"]
-    AUTHZ[/Authorize Endpoint/]
-    TOKEN[/Token Endpoint/]
-    OIDC[/OpenID Metadata + JWKS/]
-  end
+  U -->|HTTPS| APIM
+  APIM -->|Routes to backend| AKS
+  AKS -->|Pull images| ACR
+  AKS -->|Get secrets| KV
+  AKS -->|TCP 1433| PE
+  PE -->|Private link| SQL
 
-  U -->|Sign in via user flow| AUTHZ
-  AUTHZ --> TOKEN
-  OIDC -->|metadata for validation| APIM
-  OIDC -->|metadata for validation| API
-
-  %% ======= AZURE SUBSCRIPTION (RESOURCES) =======
-  subgraph AZ["Azure Subscription (ExpenseTrackerHQ Dev)"]
-    ACR[(Azure Container Registry)]
-    APIM[(Azure API Management)]
-    KV[(Azure Key Vault - RBAC)]
-    LA[(Log Analytics Workspace)]
-    SQL[(Azure SQL Database)]
-
-    %% Network
-    subgraph VNET["VNet (Phase 3)"]
-      subgraph SUBNETS["Subnets"]
-        AKS_SUBNET[AKS Subnet]
-        PE_SUBNET[Private Endpoints Subnet]
+  subgraph AZ["Azure Subscription"]
+    APIM
+    ACR
+    KV
+    subgraph VNET["Virtual Network"]
+      subgraph AKS_SYSTEM_SUBNET["AKS System Node Subnet"]
+        SYS["System Node Pool\n(kube-system)"]
       end
-      DNS[(Private DNS Zones)]
+      subgraph AKS_SUBNET["AKS User Node Subnet"]
+        AKS
+      end
+      subgraph PE_SUBNET["Private Endpoint Subnet"]
+        PE
+      end
+      SQL
     end
+  end
+```
 
-    %% AKS
-    subgraph AKS["AKS Cluster"]
-      INGRESS[Ingress Controller / Ingress Service]
-      API["ExpenseTracker API Pod(s)"]
-      MIG["EF Migrations Runner Job (Helm hook / Job)"]
-      SA["K8s ServiceAccount<br/>annotated for Workload Identity"]
-      OIDC_ISSUER["AKS OIDC Issuer"]
-    end
+---
 
-    %% SQL Private Endpoint
-    SQL_PE[(Private Endpoint for Azure SQL)]
+## Diagram 2 — Request Authentication (user → Entra → APIM → API)
+
+```mermaid
+flowchart LR
+  U[User]
+  ENTRA[Entra External ID]
+  APIM[API Management]
+  API[ExpenseTracker API]
+
+  U -->|OIDC sign-in| ENTRA;
+  ENTRA -->|Access token| U;
+  U -->|Bearer token| APIM;
+  APIM -->|Validate JWT| ENTRA;
+  APIM -->|Forward request| API;
+```
+
+---
+
+## Diagram 3 — Workload Identity + Key Vault (API/Migrations → secrets)
+
+```mermaid
+flowchart LR
+  subgraph AKS[AKS Cluster]
+    SA[K8s ServiceAccount]
+    API[API Pods]
+    MIG[Migrations Job]
+    OIDC[AKS OIDC Issuer]
+
+    SA --> API;
+    SA --> MIG;
+    OIDC --> API;
+    OIDC --> MIG;
   end
 
-  %% ======= IMAGE SUPPLY CHAIN =======
-  ACR -->|pull image| API
-  ACR -->|pull image| MIG
+  ENTRA[Entra ID]
+  KV[Key Vault]
 
-  %% ======= APIM TO AKS ROUTING =======
-  APIM -->|routes to backend| INGRESS
-  APIM -->|sets Host header to expense.local| INGRESS
+  API -->|OIDC federation| ENTRA;
+  MIG -->|OIDC federation| ENTRA;
+  API -->|Get secrets| KV;
+  MIG -->|Get secrets| KV;
+```
 
-  %% ======= LOCAL DEV DNS (YOUR MACHINE) =======
-  U -->|expense.local from laptop| INGRESS
-  INGRESS --> API
+---
 
-  %% ======= WORKLOAD IDENTITY TOKEN FLOW =======
-  SA --> API
-  SA --> MIG
-  OIDC_ISSUER -->|issues service account JWT| API
-  OIDC_ISSUER -->|issues service account JWT| MIG
+## Diagram 4 — Private Networking (AKS → SQL via Private Endpoint + Private DNS)
 
-  API -->|DefaultAzureCredential via OIDC federation| ENTRA
-  MIG -->|DefaultAzureCredential via OIDC federation| ENTRA
+```mermaid
+flowchart LR
+  subgraph VNET["Virtual Network"]
+    DNS["Private DNS Zone<br/>privatelink.database.windows.net"]
+    subgraph AKS_SUBNET["AKS Subnet"]
+      AKS["AKS Pods"]
+    end
+    subgraph PE_SUBNET["Private Endpoint Subnet"]
+      PE["Private Endpoint (NIC)"]
+    end
+  end
 
-  %% ======= KEY VAULT SECRET READ =======
-  API -->|get secret using RBAC role Secrets User| KV
-  MIG -->|get secret using RBAC role Secrets User| KV
+  AKS -->|Resolve SQL FQDN| DNS
+  DNS -->|Returns private IP| AKS
 
-  %% ======= SQL CONNECTIVITY (PRIVATE) =======
-  KV -->|returns SQL connection string| API
-  KV -->|returns SQL connection string| MIG
+  SQL["Azure SQL Server/DB"] --- PE
 
-  API -->|TCP 1433 to private IP| SQL
-  MIG -->|Apply migrations| SQL
-
-  SQL --> SQL_PE
-  SQL_PE --> PE_SUBNET
-  DNS -->|resolves SQL FQDN to private IP| AKS_SUBNET
-
-  %% ======= OBSERVABILITY (PHASE 4) =======
-  APIM -->|diagnostics| LA
-  KV -->|diagnostics| LA
+  AKS -->|TCP 1433| PE
+  PE -->|Private link| SQL
 ```
